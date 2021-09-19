@@ -2,8 +2,6 @@ import Product from '../models/productModel.js'
 import asyncHandler from 'express-async-handler'
 import APIFeatures from '../utils/apiFeatures.js'
 
-
-
 // Create new product   =>   /api/v1/admin/product/new
 const newProduct = asyncHandler(async (req, res) => {
   const product = await Product.create(req.body)
@@ -14,46 +12,37 @@ const newProduct = asyncHandler(async (req, res) => {
   })
 })
 
-
 // Get all products   =>   /api/v1/products?keyword=apple
 const getProducts = asyncHandler(async (req, res) => {
-
   const resPerPage = 4
   const productsCount = await Product.countDocuments()
 
   const apiFeatures = new APIFeatures(Product.find(), req.query)
     .search()
     .filter()
+    .pagination(resPerPage)
 
-  let products = await apiFeatures.query
-  let filteredProductsCount = products.length
-
-  apiFeatures.pagination(resPerPage)
-  products = await apiFeatures.query
+  const products = await apiFeatures.query
 
   res.status(200).json({
     success: true,
+    count: products.length,
     productsCount,
-    resPerPage,
-    filteredProductsCount,
     products,
   })
 })
 
-
 // Get single product details   =>   /api/v1/product/:id
 const getSingleProduct = asyncHandler(async (req, res, next) => {
-  
   const product = await Product.findById(req.params.id)
 
-   if (product) {
-     res.json(product)
-   } else {
-     res.status(404)
-     throw new Error('Product not found')
-   }
+  if (product) {
+    res.json(product)
+  } else {
+    res.status(404)
+    throw new Error('Product not found')
+  }
 })
-
 
 // Update Product   =>   /api/v1/admin/product/:id
 const updateProduct = asyncHandler(async (req, res) => {
@@ -70,21 +59,18 @@ const updateProduct = asyncHandler(async (req, res) => {
     res.status(404)
     throw new Error('Product not found')
   }
-
 })
-
-
 
 // Delete Product   =>   /api/v1/admin/product/:id
 const deleteProduct = async (req, res) => {
-   const product = await Product.findById(req.params.id)
-   if (product) {
-     await product.remove()
-     res.json({ message: 'Product is removed' })
-   } else {
-     res.status(404)
-     throw new Error('Product not found')
-   }
+  const product = await Product.findById(req.params.id)
+  if (product) {
+    await product.remove()
+    res.json({ message: 'Product is removed' })
+  } else {
+    res.status(404)
+    throw new Error('Product not found')
+  }
 }
 
 export {
