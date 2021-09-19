@@ -1,5 +1,6 @@
 import Product from '../models/productModel.js'
 import asyncHandler from 'express-async-handler'
+import APIFeatures from '../utils/apiFeatures.js'
 
 
 
@@ -16,10 +17,25 @@ const newProduct = asyncHandler(async (req, res) => {
 
 // Get all products   =>   /api/v1/products?keyword=apple
 const getProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find()
+
+  const resPerPage = 4
+  const productsCount = await Product.countDocuments()
+
+  const apiFeatures = new APIFeatures(Product.find(), req.query)
+    .search()
+    .filter()
+
+  let products = await apiFeatures.query
+  let filteredProductsCount = products.length
+
+  apiFeatures.pagination(resPerPage)
+  products = await apiFeatures.query
+
   res.status(200).json({
     success: true,
-    count: products.length,
+    productsCount,
+    resPerPage,
+    filteredProductsCount,
     products,
   })
 })
