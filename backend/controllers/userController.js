@@ -115,12 +115,12 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     return next(
-      new Error('Password reset token is invalid or has been expired', 400)
+      new Error('Password reset token is invalid or has been expired')
     )
   }
 
   if (req.body.password !== req.body.confirmPassword) {
-    return next(new Error('Password does not match', 400))
+    return next(new Error('Password does not match'))
   }
 
   // Setup new password
@@ -133,5 +133,140 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 
   sendToken(user, 200, res)
 })
+// Get currently logged in user details   =>   /api/v1/me
+const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id)
+  res.status(200).json({
+    success: true,
+    user,
+  })
+})
 
-export { registerUser, loginUser, logout, forgotPassword, resetPassword }
+// Update / Change password   =>  /api/v1/password/update
+const updatePassword = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select('+password')
+
+  // Check previous user password
+  const isMatched = await user.matchPassword(req.body.oldPassword)
+  if (!isMatched) {
+    res.status(400)
+    throw new Error('Old password is incorrect')
+  }
+
+  user.password = req.body.password
+  await user.save()
+
+  sendToken(user, 200, res)
+})
+
+// Update user profile   =>   /api/v1/me/update
+const updateProfile = asyncHandler(async (req, res, next) => {
+  const newUserData = {
+    name: req.body.name,
+    email: req.body.email,
+  }
+
+  // Update avatar
+  // if (req.body.avatar !== '') {
+  //   const user = await User.findById(req.user.id)
+
+  //   const image_id = user.avatar.public_id
+  //   const res = await cloudinary.v2.uploader.destroy(image_id)
+
+  //   const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
+  //     folder: 'avatars',
+  //     width: 150,
+  //     crop: 'scale',
+  //   })
+
+  //   newUserData.avatar = {
+  //     public_id: result.public_id,
+  //     url: result.secure_url,
+  //   }
+  // }
+
+  const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  })
+
+  res.status(200).json({
+    success: true,
+  })
+})
+
+// Get all users   =>   /api/v1/admin/users
+const allUsers = asyncHandler(async (req, res, next) => {
+  const users = await User.find()
+
+  res.status(200).json({
+    success: true,
+    users,
+  })
+})
+
+// Get user details   =>   /api/v1/admin/user/:id
+const getUserDetails = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id).select('-password')
+
+  if (user) {
+    res.json({ success: true, user })
+  } else {
+    res.status(404)
+    throw new Error(`User does not found with id: ${req.params.id}`)
+  }
+})
+
+// Update user profile   =>   /api/v1/admin/user/:id
+const updateUser = asyncHandler(async (req, res, next) => {
+  const newUserData = {
+    name: req.body.name,
+    email: req.body.email,
+    role: req.body.role,
+  }
+
+  const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  })
+
+  res.status(200).json({
+    success: true,
+  })
+})
+
+// Delete user   =>   /api/v1/admin/user/:id
+const deleteUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id)
+
+  if (!user) {
+    return next(new Error(`User does not found with id: ${req.params.id}`))
+  }
+
+  // Remove avatar from cloudinary
+  // const image_id = user.avatar.public_id
+  // await cloudinary.v2.uploader.destroy(image_id)
+
+  await user.remove()
+
+  res.status(200).json({
+    success: true,
+  })
+})
+
+export {
+  registerUser,
+  loginUser,
+  logout,
+  forgotPassword,
+  resetPassword,
+  getUserProfile,
+  updatePassword,
+  updateProfile,
+  allUsers,
+  getUserDetails,
+  updateUser,
+  deleteUser,
+}
