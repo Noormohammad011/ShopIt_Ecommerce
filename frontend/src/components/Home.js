@@ -1,38 +1,38 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import MetaData from './layout/MetaData'
+import { useDispatch, useSelector } from 'react-redux'
+import { listProducts } from '../actions/productActions'
+import Product from './product/Product'
+import Loader from './layout/Loader'
+import { useAlert } from 'react-alert'
 
 const Home = () => {
+  const dispatch = useDispatch()
+  const alert = useAlert()
+  const productList = useSelector((state) => state.productList)
+  const { loading, error, products, productsCount } = productList
+
+  useEffect(() => {
+    if (error) {
+      return alert.error(error)
+    }
+    dispatch(listProducts())
+  }, [dispatch, alert, error])
+
   return (
     <>
       <MetaData title={'Buy Best products online'} />
-      <h1 id='products_heading'>Latest Products</h1>
+      <h1 id='products_heading'>Latest Products {productsCount}</h1>
       <section id='products' className='container mt-5'>
         <div className='row'>
-          <div className='col-sm-12 col-md-6 col-lg-3 my-3'>
-            <div className='card p-3 rounded'>
-              <img
-                className='card-img-top mx-auto'
-                src='https://m.media-amazon.com/images/I/61pBvlYVPxL._AC_UY218_.jpg'
-              />
-              <div className='card-body d-flex flex-column'>
-                <h5 className='card-title'>
-                  <a href=''>AmazonBasics High-Speed HDMI Cable, 6 Feet</a>
-                </h5>
-                <div className='ratings mt-auto'>
-                  <i className='fa fa-star'></i>
-                  <i className='fa fa-star'></i>
-                  <i className='fa fa-star'></i>
-                  <i className='fa fa-star-half-o'></i>
-                  <i className='fa fa-star-o'></i>
-                  <span id='no_of_reviews'>(5 Reviews)</span>
-                </div>
-                <p className='card-text'>$75.56</p>
-                <a href='#' id='view_btn' className='btn btn-block'>
-                  View Details
-                </a>
-              </div>
-            </div>
-          </div>
+          {loading ? (
+            <Loader />
+          ) : (
+            products &&
+            products.map((product) => (
+              <Product key={product._id} product={product} />
+            ))
+          )}
         </div>
       </section>
     </>
@@ -40,3 +40,5 @@ const Home = () => {
 }
 
 export default Home
+
+

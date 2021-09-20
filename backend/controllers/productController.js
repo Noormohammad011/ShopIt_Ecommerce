@@ -15,7 +15,7 @@ const newProduct = asyncHandler(async (req, res) => {
 
 // Get all products   =>   /api/v1/products?keyword=apple
 const getProducts = asyncHandler(async (req, res) => {
-  const resPerPage = 4
+  const resPerPage = 8
   const productsCount = await Product.countDocuments()
 
   const apiFeatures = new APIFeatures(Product.find(), req.query)
@@ -27,7 +27,6 @@ const getProducts = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    count: products.length,
     productsCount,
     products,
   })
@@ -124,12 +123,9 @@ const getProductReviews = asyncHandler(async (req, res, next) => {
   })
 })
 
-
 // Delete Product Review   =>   /api/v1/reviews
 const deleteReview = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.query.productId)
-
-  
 
   const reviews = product.reviews.filter(
     (review) => review._id.toString() !== req.query.id.toString()

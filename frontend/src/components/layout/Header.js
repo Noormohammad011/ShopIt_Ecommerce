@@ -1,11 +1,12 @@
 import React from 'react'
+import logo from '../../images/logo.png'
 const Header = () => {
   return (
     <>
       <nav className='navbar row'>
         <div className='col-12 col-md-3'>
           <div className='navbar-brand'>
-            <img src='/images/logo.png' />
+            <img src={logo} alt='brandLogo' />
           </div>
         </div>
 
