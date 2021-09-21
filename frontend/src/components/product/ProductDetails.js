@@ -6,31 +6,27 @@ import { useAlert } from 'react-alert'
 import Loader from '../layout/Loader'
 import MetaData from '../layout/MetaData'
 
-const ProductDetails = ({match}) => {
+const ProductDetails = ({ match }) => {
+  const productDetails = useSelector((state) => state.productDetails)
+  const { loading, error, product } = productDetails
 
+  const dispatch = useDispatch()
+  const alert = useAlert()
 
+  useEffect(() => {
+    if (error) {
+      return alert.error(error)
+    }
+    dispatch(detailsProduct(match.params.id))
+  }, [dispatch, match.params.id, alert, error])
 
-    const productDetails = useSelector((state) => state.productDetails)
-    const { loading, error, product } = productDetails
-
-
-    const dispatch = useDispatch()
-    const alert = useAlert()
-
-
-    useEffect(() => {
-      if (error) {
-        return alert.error(error)
-      }
-      dispatch(detailsProduct(match.params.id))
-    }, [dispatch, match.params.id, alert, error])
-
-    return (
-      <>
-        <MetaData title={product.name} />
-        {loading ? (
-          <Loader />
-        ) : (
+  return (
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <MetaData title={product.name} />
           <div className='row f-flex justify-content-around'>
             <div className='col-12 col-lg-5 img-fluid' id='product_image'>
               <Carousel pause='hover'>
@@ -180,9 +176,10 @@ const ProductDetails = ({match}) => {
               </div>
             </div>
           </div>
-        )}
-      </>
-    )
+        </>
+      )}
+    </>
+  )
 }
 
 export default ProductDetails
