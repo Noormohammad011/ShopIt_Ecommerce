@@ -45,6 +45,8 @@ const Home = ({ match }) => {
     filteredProductsCount,
   } = productList
 
+  // filteredProductsCount,
+
   const keyword = match.params.keyword
   useEffect(() => {
     if (error) {
@@ -63,11 +65,11 @@ const Home = ({ match }) => {
   }
 
   return (
-    <Fragment>
+    <>
       {loading ? (
         <Loader />
       ) : (
-        <Fragment>
+        <>
           <MetaData title={'Buy Best Products Online'} />
 
           <h1 id='products_heading'>Latest Products</h1>
@@ -75,7 +77,7 @@ const Home = ({ match }) => {
           <section id='products' className='container mt-5'>
             <div className='row'>
               {keyword ? (
-                <Fragment>
+                <>
                   <div className='col-6 col-md-3 mt-5 mb-5'>
                     <div className='px-5'>
                       <Range
@@ -153,7 +155,7 @@ const Home = ({ match }) => {
                       ))}
                     </div>
                   </div>
-                </Fragment>
+                </>
               ) : (
                 products.map((product) => (
                   <Product key={product._id} product={product} col={3} />
@@ -178,9 +180,9 @@ const Home = ({ match }) => {
               />
             </div>
           )}
-        </Fragment>
+        </>
       )}
-    </Fragment>
+    </>
   )
 }
 
