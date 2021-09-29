@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import MetaData from './layout/MetaData'
 import Pagination from 'react-js-pagination'
 import Slider from 'rc-slider'
@@ -15,32 +15,59 @@ const Range = createSliderWithTooltip(Slider.Range)
 const Home = ({ match }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [price, setPrice] = useState([1, 1000])
-  // const [category, setCategory] = useState('')
+  const [category, setCategory] = useState('')
   // const [rating, setRating] = useState(0)
+
+  const categories = [
+    'Electronics',
+    'Cameras',
+    'Laptops',
+    'Accessories',
+    'Headphones',
+    'Food',
+    'Books',
+    'Clothes/Shoes',
+    'Beauty/Health',
+    'Sports',
+    'Outdoor',
+    'Home',
+  ]
 
   const dispatch = useDispatch()
   const alert = useAlert()
   const productList = useSelector((state) => state.productList)
-  const { loading, error, products, productsCount, resPerPage } = productList
+  const {
+    loading,
+    error,
+    products,
+    productsCount,
+    resPerPage,
+    filteredProductsCount,
+  } = productList
 
   const keyword = match.params.keyword
   useEffect(() => {
     if (error) {
       return alert.error(error)
     }
-    dispatch(listProducts(keyword, currentPage, price))
-  }, [dispatch, alert, error, currentPage, keyword, price])
+    dispatch(listProducts(keyword, currentPage, price, category))
+  }, [dispatch, alert, error, keyword, currentPage, price, category])
 
   function setCurrentPageNo(pageNumber) {
     setCurrentPage(pageNumber)
   }
 
+  let count = productsCount
+  if (keyword) {
+    count = filteredProductsCount
+  }
+
   return (
-    <>
+    <Fragment>
       {loading ? (
         <Loader />
       ) : (
-        <>
+        <Fragment>
           <MetaData title={'Buy Best Products Online'} />
 
           <h1 id='products_heading'>Latest Products</h1>
@@ -48,7 +75,7 @@ const Home = ({ match }) => {
           <section id='products' className='container mt-5'>
             <div className='row'>
               {keyword ? (
-                <>
+                <Fragment>
                   <div className='col-6 col-md-3 mt-5 mb-5'>
                     <div className='px-5'>
                       <Range
@@ -68,54 +95,54 @@ const Home = ({ match }) => {
                         onChange={(price) => setPrice(price)}
                       />
 
-                      {/* <hr className='my-5' />
+                      <hr className='my-5' />
 
-                        <div className='mt-5'>
-                          <h4 className='mb-3'>Categories</h4>
+                      <div className='mt-5'>
+                        <h4 className='mb-3'>Categories</h4>
 
-                          <ul className='pl-0'>
-                            {categories.map((category) => (
-                              <li
-                                style={{
-                                  cursor: 'pointer',
-                                  listStyleType: 'none',
-                                }}
-                                key={category}
-                                onClick={() => setCategory(category)}
-                              >
-                                {category}
-                              </li>
-                            ))}
-                          </ul>
-                        </div> */}
+                        <ul className='pl-0'>
+                          {categories.map((category) => (
+                            <li
+                              style={{
+                                cursor: 'pointer',
+                                listStyleType: 'none',
+                              }}
+                              key={category}
+                              onClick={() => setCategory(category)}
+                            >
+                              {category}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
 
-                      {/* <hr className='my-3' />
+                      {/* <hr className='my-3' /> */}
 
-                        <div className='mt-5'>
-                          <h4 className='mb-3'>Ratings</h4>
+                      {/* <div className='mt-5'>
+                        <h4 className='mb-3'>Ratings</h4>
 
-                          <ul className='pl-0'>
-                            {[5, 4, 3, 2, 1].map((star) => (
-                              <li
-                                style={{
-                                  cursor: 'pointer',
-                                  listStyleType: 'none',
-                                }}
-                                key={star}
-                                onClick={() => setRating(star)}
-                              >
-                                <div className='rating-outer'>
-                                  <div
-                                    className='rating-inner'
-                                    style={{
-                                      width: `${star * 20}%`,
-                                    }}
-                                  ></div>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        </div> */}
+                        <ul className='pl-0'>
+                          {[5, 4, 3, 2, 1].map((star) => (
+                            <li
+                              style={{
+                                cursor: 'pointer',
+                                listStyleType: 'none',
+                              }}
+                              key={star}
+                              onClick={() => setRating(star)}
+                            >
+                              <div className='rating-outer'>
+                                <div
+                                  className='rating-inner'
+                                  style={{
+                                    width: `${star * 20}%`,
+                                  }}
+                                ></div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div> */}
                     </div>
                   </div>
 
@@ -126,7 +153,7 @@ const Home = ({ match }) => {
                       ))}
                     </div>
                   </div>
-                </>
+                </Fragment>
               ) : (
                 products.map((product) => (
                   <Product key={product._id} product={product} col={3} />
@@ -135,7 +162,7 @@ const Home = ({ match }) => {
             </div>
           </section>
 
-          {resPerPage <= productsCount && (
+          {resPerPage <= count && (
             <div className='d-flex justify-content-center mt-5'>
               <Pagination
                 activePage={currentPage}
@@ -151,9 +178,9 @@ const Home = ({ match }) => {
               />
             </div>
           )}
-        </>
+        </Fragment>
       )}
-    </>
+    </Fragment>
   )
 }
 
