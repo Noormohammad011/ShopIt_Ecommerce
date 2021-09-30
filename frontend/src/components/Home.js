@@ -16,7 +16,7 @@ const Home = ({ match }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [price, setPrice] = useState([1, 1000])
   const [category, setCategory] = useState('')
-  // const [rating, setRating] = useState(0)
+  const [rating, setRating] = useState(0)
 
   const categories = [
     'Electronics',
@@ -52,8 +52,8 @@ const Home = ({ match }) => {
     if (error) {
       return alert.error(error)
     }
-    dispatch(listProducts(keyword, currentPage, price, category))
-  }, [dispatch, alert, error, keyword, currentPage, price, category])
+    dispatch(listProducts(keyword, currentPage, price, category, rating))
+  }, [dispatch, alert, error, keyword, currentPage, price, category, rating])
 
   function setCurrentPageNo(pageNumber) {
     setCurrentPage(pageNumber)
@@ -118,9 +118,9 @@ const Home = ({ match }) => {
                         </ul>
                       </div>
 
-                      {/* <hr className='my-3' /> */}
+                      <hr className='my-3' />
 
-                      {/* <div className='mt-5'>
+                      <div className='mt-5'>
                         <h4 className='mb-3'>Ratings</h4>
 
                         <ul className='pl-0'>
@@ -144,7 +144,7 @@ const Home = ({ match }) => {
                             </li>
                           ))}
                         </ul>
-                      </div> */}
+                      </div>
                     </div>
                   </div>
 

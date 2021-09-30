@@ -15,7 +15,7 @@ const newProduct = asyncHandler(async (req, res) => {
 
 // Get all products   =>   /api/v1/products?keyword=apple
 const getProducts = asyncHandler(async (req, res) => {
-  const resPerPage = 4
+  const resPerPage = 8
   const productsCount = await Product.countDocuments()
 
   const apiFeatures = new APIFeatures(Product.find(), req.query)
